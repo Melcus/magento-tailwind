@@ -1,0 +1,61 @@
+version: "3.7"
+
+services:
+  mysql:
+    image: mysql:latest
+    container_name: tailgento_mysql
+    environment:
+      MYSQL_DATABASE: tailgento
+      MYSQL_ROOT_PASSWORD: -ghyeUAF7Akfm.
+      MYSQL_USER: application_user
+      MYSQL_PASSWORD: 4.B3XnYzfaBFw2
+    command: [ "--default-authentication-plugin=mysql_native_password" ]
+    ports:
+      - "3380:3306"
+    volumes:
+      - tailgento_mysql:/data/mysql
+    networks:
+      - tailgento
+
+  redis:
+    image: redis:latest
+    container_name: tailgento_redis
+    ports:
+      - "6311:6379"
+    volumes:
+      - tailgento_redis:/data
+    networks:
+      - tailgento
+
+  tailgento_es01:
+    container_name: tailgento_es01
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.11.1
+    environment:
+      - node.name=tailgento_es01
+      - xpack.security.enabled=false
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - tailgento_es:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+      - 9300:9300
+    networks:
+      - tailgento
+
+
+volumes:
+  tailgento_mysql:
+    driver: local
+  tailgento_redis:
+    driver: local
+  tailgento_es:
+    driver: local
+
+networks:
+  tailgento:
+    driver: bridge
